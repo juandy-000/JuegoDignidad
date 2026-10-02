@@ -1,0 +1,937 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>El Camino de la Dignidad</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #172554, #312e81, #581c87);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            padding: 20px;
+        }
+
+        .juego {
+            width: 100%;
+            max-width: 950px;
+            min-height: 600px;
+            background: #0f172a;
+            border-radius: 25px;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+        }
+
+        /* PANTALLA DE INICIO */
+
+        .inicio {
+            min-height: 600px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 40px;
+            background:
+                radial-gradient(circle at top, #4338ca, transparent 45%),
+                #0f172a;
+        }
+
+        .logo {
+            font-size: 80px;
+            animation: flotar 2s infinite ease-in-out;
+        }
+
+        @keyframes flotar {
+            0%, 100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-12px);
+            }
+        }
+
+        .inicio h1 {
+            font-size: 50px;
+            margin: 10px 0;
+            background: linear-gradient(90deg, #67e8f9, #c084fc);
+            -webkit-background-clip: text;
+            color: transparent;
+        }
+
+        .inicio p {
+            max-width: 650px;
+            color: #cbd5e1;
+            font-size: 18px;
+            line-height: 1.6;
+        }
+
+        .boton-principal {
+            margin-top: 25px;
+            padding: 18px 45px;
+            border: none;
+            border-radius: 50px;
+            background: linear-gradient(90deg, #06b6d4, #8b5cf6);
+            color: white;
+            font-size: 20px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .boton-principal:hover {
+            transform: scale(1.08);
+        }
+
+        /* JUEGO */
+
+        #pantallaJuego {
+            display: none;
+        }
+
+        .barra-superior {
+            padding: 18px 25px;
+            background: #020617;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .titulo-juego {
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .estadisticas {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .estadistica {
+            background: #1e293b;
+            padding: 10px 16px;
+            border-radius: 12px;
+        }
+
+        .barra-dignidad {
+            width: 150px;
+            height: 12px;
+            background: #334155;
+            border-radius: 20px;
+            overflow: hidden;
+            margin-top: 5px;
+        }
+
+        #nivelDignidad {
+            height: 100%;
+            width: 100%;
+            background: linear-gradient(90deg, #22c55e, #06b6d4);
+            transition: width 0.5s;
+        }
+
+        /* ESCENARIO */
+
+        .escenario {
+            height: 280px;
+            position: relative;
+            overflow: hidden;
+            background:
+                linear-gradient(
+                    #38bdf8 0%,
+                    #7dd3fc 60%,
+                    #86efac 60%,
+                    #4ade80 100%
+                );
+        }
+
+        .sol {
+            position: absolute;
+            top: 25px;
+            right: 50px;
+            font-size: 55px;
+        }
+
+        .colegio {
+            position: absolute;
+            bottom: 35px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 100px;
+        }
+
+        .personaje {
+            position: absolute;
+            bottom: 25px;
+            left: 100px;
+            font-size: 75px;
+            transition: 0.7s;
+        }
+
+        .personaje.mover {
+            left: 43%;
+        }
+
+        .amigo {
+            position: absolute;
+            bottom: 25px;
+            right: 120px;
+            font-size: 70px;
+        }
+
+        .nube {
+            position: absolute;
+            top: 35px;
+            left: 100px;
+            font-size: 50px;
+            opacity: 0.8;
+        }
+
+        /* PREGUNTAS */
+
+        .panel {
+            padding: 30px;
+            background: #0f172a;
+        }
+
+        .progreso {
+            color: #94a3b8;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        .pregunta {
+            font-size: 25px;
+            line-height: 1.4;
+            margin-bottom: 25px;
+        }
+
+        .opciones {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .opcion {
+            padding: 18px;
+            border: 2px solid #334155;
+            border-radius: 15px;
+            background: #1e293b;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            text-align: left;
+            transition: 0.25s;
+        }
+
+        .opcion:hover:not(:disabled) {
+            border-color: #8b5cf6;
+            transform: translateY(-3px);
+            background: #273449;
+        }
+
+        .opcion.correcta {
+            border-color: #22c55e;
+            background: #14532d;
+        }
+
+        .opcion.incorrecta {
+            border-color: #ef4444;
+            background: #7f1d1d;
+        }
+
+        .opcion:disabled {
+            cursor: default;
+        }
+
+        #mensaje {
+            min-height: 30px;
+            margin-top: 20px;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        /* FINAL */
+
+        .final {
+            display: none;
+            min-height: 600px;
+            text-align: center;
+            padding: 50px;
+            background:
+                radial-gradient(circle at center, #312e81, transparent 60%),
+                #0f172a;
+        }
+
+        .trofeo {
+            font-size: 100px;
+            animation: aparecer 1s;
+        }
+
+        @keyframes aparecer {
+            from {
+                transform: scale(0);
+                opacity: 0;
+            }
+
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .final h1 {
+            font-size: 45px;
+        }
+
+        .puntuacion-final {
+            font-size: 30px;
+            color: #67e8f9;
+            margin: 20px;
+        }
+
+        .reflexion {
+            max-width: 650px;
+            margin: auto;
+            color: #cbd5e1;
+            font-size: 18px;
+            line-height: 1.7;
+        }
+
+        @media (max-width: 700px) {
+
+            .inicio h1 {
+                font-size: 35px;
+            }
+
+            .opciones {
+                grid-template-columns: 1fr;
+            }
+
+            .personaje {
+                left: 30px;
+            }
+
+            .amigo {
+                right: 30px;
+            }
+
+            .colegio {
+                font-size: 75px;
+            }
+
+            .escenario {
+                height: 230px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="juego">
+
+    <!-- INICIO -->
+
+    <section class="inicio" id="inicio">
+
+        <div class="logo">🌟</div>
+
+        <h1>El Camino de la Dignidad</h1>
+
+        <p>
+            Un juego sobre el respeto, la empatía,
+            la igualdad y la dignidad de todas las personas.
+        </p>
+
+        <p>
+            Tendrás que enfrentarte a 20 situaciones
+            y decidir cómo actuarías.
+        </p>
+
+        <button class="boton-principal" onclick="comenzarJuego()">
+            🎮 COMENZAR
+        </button>
+
+    </section>
+
+
+    <!-- JUEGO -->
+
+    <section id="pantallaJuego">
+
+        <div class="barra-superior">
+
+            <div class="titulo-juego">
+                🌟 EL CAMINO DE LA DIGNIDAD
+            </div>
+
+            <div class="estadisticas">
+
+                <div class="estadistica">
+                    ⭐ Puntos:
+                    <span id="puntos">0</span>
+                </div>
+
+                <div class="estadistica">
+
+                    ❤️ Dignidad
+
+                    <div class="barra-dignidad">
+                        <div id="nivelDignidad"></div>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- ESCENARIO -->
+
+        <div class="escenario">
+
+            <div class="sol">☀️</div>
+
+            <div class="nube">☁️</div>
+
+            <div class="colegio">🏫</div>
+
+            <div class="personaje" id="personaje">
+                🧑
+            </div>
+
+            <div class="amigo">
+                🧑‍🤝‍🧑
+            </div>
+
+        </div>
+
+
+        <!-- PREGUNTA -->
+
+        <div class="panel">
+
+            <div class="progreso" id="progreso">
+                Situación 1 de 20
+            </div>
+
+            <div class="pregunta" id="pregunta"></div>
+
+            <div class="opciones" id="opciones"></div>
+
+            <div id="mensaje"></div>
+
+        </div>
+
+    </section>
+
+
+    <!-- FINAL -->
+
+    <section class="final" id="final">
+
+        <div class="trofeo">🏆</div>
+
+        <h1>¡Has terminado!</h1>
+
+        <div class="puntuacion-final">
+            ⭐ <span id="puntuacionFinal">0</span> / 200 puntos
+        </div>
+
+        <p class="reflexion">
+            La dignidad significa reconocer que todas las
+            personas tienen valor y merecen respeto.
+        </p>
+
+        <p class="reflexion">
+            Tus decisiones pueden ayudar a crear un entorno
+            donde todas las personas se sientan respetadas,
+            escuchadas e incluidas.
+        </p>
+
+        <button class="boton-principal" onclick="location.reload()">
+            🔄 JUGAR OTRA VEZ
+        </button>
+
+    </section>
+
+</div>
+
+
+<script>
+
+let situacionActual = 0;
+let puntos = 0;
+let dignidad = 100;
+
+
+/* =========================
+   LAS 20 SITUACIONES
+   ========================= */
+
+const situaciones = [
+
+    {
+        pregunta: "Ves a una persona nueva que está sola en el recreo. ¿Qué haces?",
+        opciones: [
+            {
+                texto: "👋 Te acercas y le preguntas si quiere estar contigo.",
+                correcta: true
+            },
+            {
+                texto: "🚶 La ignoras porque no la conoces.",
+                correcta: false
+            }
+        ]
+    },
+
+    {
+        pregunta: "Un compañero se equivoca al responder en clase. ¿Qué haces?",
+        opciones: [
+            {
+                texto: "🤝 Lo respetas y le dices que equivocarse es normal.",
+                correcta: true
+            },
+            {
+                texto: "😂 Te ríes de él delante de la clase.",
+                correcta: false
+            }
+        ]
+    },
+
+    {
+        pregunta: "Una persona tiene una opinión diferente a la tuya.",
+        opciones: [
+            {
+                texto: "👂 Escuchas su opinión aunque no estés de acuerdo.",
+                correcta: true
+            },
+            {
+                texto: "😡 La interrumpes y te burlas de su opinión.",
+                correcta: false
+            }
+        ]
+    },
+
+    {
+        pregunta: "Un amigo te cuenta algo personal y te pide que no lo compartas.",
+        opciones: [
+            {
+                texto: "🔒 Respetas su privacidad.",
+                correcta: true
+            },
+            {
+                texto: "📱 Se lo cuentas a otras personas.",
+                correcta: false
+            }
+        ]
+    },
+
+    {
+        pregunta: "Ves que alguien está siendo dejado fuera de un grupo.",
+        opciones: [
+            {
+                texto: "🤝 Intentas incluirlo en la actividad.",
+                correcta: true
+            },
+            {
+                texto: "🙈 Lo ignoras y continúas con el grupo.",
+                correcta: false
+            }
+        ]
+    },
+
+    {
+        pregunta: "Una persona necesita ayuda con una tarea.",
+        opciones: [
+            {
+                texto: "💙 Intentas ayudarla o buscas ayuda para ella.",
+                correcta: true
+            },
+            {
+                texto: "🙄 Le dices que no te importa.",
+                correcta: false
+            }
+        ]
+    },
+
+    {
+        pregunta: "Alguien habla mientras tú estás hablando.",
+        opciones: [
+            {
+                texto: "🗣️ Esperas tu turno y después continúas hablando.",
+                correcta: true
+            },
+            {
+                texto: "😠 Le gritas para que se calle.",
+                correcta: false
+            }
+        ]
+    },
+
+    {
+        pregunta: "Encuentras un objeto que pertenece a otra persona.",
+        opciones: [
+            {
+                texto: "🔎 Intentas encontrar a su dueño para devolvérselo.",
+                correcta: true
+            },
+            {
+                texto: "🎒 Te lo quedas porque nadie te está mirando.",
+                correcta: false
+            }
+        ]
+    },
+
+    {
+        pregunta: "Un compañero tiene dificultades para participar en una actividad.",
+        opciones: [
+            {
+                texto: "🤝 Le preguntas cómo puedes ayudarle.",
+                correcta: true
+            },
+            {
+                texto: "🚫 Decides que no participe.",
+                correcta: false
+            }
+        ]
+    },
+
+    {
+        pregunta: "Escuchas un rumor sobre un compañero.",
+        opciones: [
+            {
+                texto: "🛑 No lo compartes porque no sabes si es verdad.",
+                correcta: true
+            },
+            {
+                texto: "📢 Lo cuentas a más personas.",
+                correcta: false
+            }
+        ]
+    },
+
+    {
+        pregunta: "Una persona se siente triste durante el recreo.",
+        opciones: [
+            {
+                texto: "💙 Le preguntas si está bien y si necesita ayuda.",
+                correcta: true
+            },
+            {
+                texto: "😐 La ignoras porque no es tu problema.",
+                correcta: false
+            }
+        ]
+    },
+
+    {
+        pregunta: "Alguien piensa diferente sobre un tema importante.",
+        opciones: [
+            {
+                texto: "🧠 Intentas comprender por qué piensa así.",
+                correcta: true
+            },
+            {
+                texto: "😤 Dices que su opinión no vale nada.",
+                correcta: false
+            }
+        ]
+    },
+
+    {
+        pregunta: "Un compañero está hablando delante de toda la clase.",
+        opciones: [
+            {
+                texto: "👏 Escuchas y respetas su turno.",
+                correcta: true
+            },
+            {
+                texto: "😂 Haces comentarios para distraerlo.",
+                correcta: false
+            }
+        ]
+    },
+
+    {
+        pregunta: "Una persona es diferente a ti en sus gustos o costumbres.",
+        opciones: [
+            {
+                texto: "🌎 Respetas sus diferencias.",
+                correcta: true
+            },
+            {
+                texto: "🙅 Te burlas de sus diferencias.",
+                correcta: false
+            }
+        ]
+    },
+
+    {
+        pregunta: "Un amigo reconoce que ha cometido un error.",
+        opciones: [
+            {
+                texto: "🤝 Aceptas sus disculpas y hablas sobre lo ocurrido.",
+                correcta: true
+            },
+            {
+                texto: "😡 Le recuerdas constantemente su error para molestarlo.",
+                correcta: false
+            }
+        ]
+    },
+
+    {
+        pregunta: "Estás trabajando en equipo y alguien propone una idea.",
+        opciones: [
+            {
+                texto: "💡 Escuchas la idea antes de decidir.",
+                correcta: true
+            },
+            {
+                texto: "❌ Dices que es una mala idea sin escucharla.",
+                correcta: false
+            }
+        ]
+    },
+
+    {
+        pregunta: "Ves que alguien está siendo tratado de forma injusta.",
+        opciones: [
+            {
+                texto: "⚖️ Intentas apoyar a la persona y buscar una solución.",
+                correcta: true
+            },
+            {
+                texto: "🤷 No haces nada aunque puedas ayudar.",
+                correcta: false
+            }
+        ]
+    },
+
+    {
+        pregunta: "Un compañero te pide que respetes un límite personal.",
+        opciones: [
+            {
+                texto: "🛑 Respetas lo que te ha pedido.",
+                correcta: true
+            },
+            {
+                texto: "😒 Ignoras lo que te ha pedido.",
+                correcta: false
+            }
+        ]
+    },
+
+    {
+        pregunta: "En un trabajo en grupo, una persona no está de acuerdo contigo.",
+        opciones: [
+            {
+                texto: "🤝 Buscas una solución que tenga en cuenta a todos.",
+                correcta: true
+            },
+            {
+                texto: "😠 Intentas imponer tu decisión.",
+                correcta: false
+            }
+        ]
+    },
+
+    {
+        pregunta: "Al final del día, piensas en cómo has tratado a los demás.",
+        opciones: [
+            {
+                texto: "🌟 Piensas qué puedes mejorar.",
+                correcta: true
+            },
+            {
+                texto: "🤷 Crees que no importa cómo tratas a los demás.",
+                correcta: false
+            }
+        ]
+    }
+
+];
+
+
+/* =========================
+   COMENZAR
+   ========================= */
+
+function comenzarJuego() {
+
+    document.getElementById("inicio").style.display = "none";
+
+    document.getElementById("pantallaJuego").style.display = "block";
+
+    mostrarSituacion();
+}
+
+
+/* =========================
+   MOSTRAR SITUACIÓN
+   ========================= */
+
+function mostrarSituacion() {
+
+    const situacion = situaciones[situacionActual];
+
+    document.getElementById("progreso").textContent =
+        "Situación " +
+        (situacionActual + 1) +
+        " de " +
+        situaciones.length;
+
+    document.getElementById("pregunta").textContent =
+        situacion.pregunta;
+
+    document.getElementById("mensaje").textContent = "";
+
+    const contenedor =
+        document.getElementById("opciones");
+
+    contenedor.innerHTML = "";
+
+
+    situacion.opciones.forEach(function(opcion) {
+
+        const boton =
+            document.createElement("button");
+
+        boton.className = "opcion";
+
+        boton.textContent =
+            opcion.texto;
+
+        boton.onclick = function() {
+
+            elegirRespuesta(
+                boton,
+                opcion.correcta
+            );
+
+        };
+
+        contenedor.appendChild(boton);
+
+    });
+}
+
+
+/* =========================
+   ELEGIR RESPUESTA
+   ========================= */
+
+function elegirRespuesta(boton, correcta) {
+
+    const botones =
+        document.querySelectorAll(".opcion");
+
+
+    botones.forEach(function(boton) {
+        boton.disabled = true;
+    });
+
+
+    if (correcta) {
+
+        boton.classList.add("correcta");
+
+        puntos += 10;
+
+        document.getElementById("mensaje").textContent =
+            "✅ ¡Muy bien! Has elegido una opción respetuosa.";
+
+        document.getElementById("mensaje").style.color =
+            "#22c55e";
+
+        document.getElementById("personaje")
+            .classList.add("mover");
+
+    }
+
+    else {
+
+        boton.classList.add("incorrecta");
+
+        dignidad -= 5;
+
+        if (dignidad < 0) {
+            dignidad = 0;
+        }
+
+        document.getElementById("mensaje").textContent =
+            "❌ Esa decisión no respeta la dignidad de la otra persona.";
+
+        document.getElementById("mensaje").style.color =
+            "#ef4444";
+
+        document.getElementById("nivelDignidad").style.width =
+            dignidad + "%";
+    }
+
+
+    document.getElementById("puntos").textContent =
+        puntos;
+
+
+    setTimeout(function() {
+
+        situacionActual++;
+
+
+        if (situacionActual >= situaciones.length) {
+
+            terminarJuego();
+
+        }
+
+        else {
+
+            document.getElementById("personaje")
+                .classList.remove("mover");
+
+            mostrarSituacion();
+
+        }
+
+    }, 1800);
+}
+
+
+/* =========================
+   FINAL
+   ========================= */
+
+function terminarJuego() {
+
+    document.getElementById("pantallaJuego").style.display =
+        "none";
+
+    document.getElementById("final").style.display =
+        "block";
+
+    document.getElementById("puntuacionFinal").textContent =
+        puntos;
+}
+
+</script>
+
+</body>
+</html>
